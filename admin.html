@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Заявки — админка</title>
+<link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
+<style>
+*{box-sizing:border-box}
+:root{
+  --ink:#0f172a;--ink-soft:#64748b;--line:#e2e8f0;--bg:#f4f7fb;
+  --brand:#1d63d3;--brand-dark:#1550b0;--brand-soft:#e8f0fe;--accent:#ff6b35;
+}
+body{
+  margin:0;background:var(--bg);color:var(--ink);line-height:1.5;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2{margin:0;letter-spacing:-.02em}
+a{color:var(--brand);text-decoration:none}
+
+.top{background:#0f172a;color:#fff;position:sticky;top:0;z-index:20}
+.top__in{max-width:1200px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.top h1{font-size:1.05rem;font-weight:700;flex:1;min-width:150px}
+.top__user{font-size:.8rem;color:#94a3b8}
+.btn{
+  border:0;border-radius:9px;padding:9px 16px;font-size:.85rem;font-weight:650;
+  cursor:pointer;font-family:inherit;transition:.15s;white-space:nowrap;
+}
+.btn--logout{background:rgba(255,255,255,.12);color:#fff}
+.btn--logout:hover{background:rgba(255,255,255,.22)}
+.btn--primary{background:var(--brand);color:#fff}
+.btn--primary:hover{background:var(--brand-dark)}
+
+.wrap{max-width:1200px;margin:0 auto;padding:20px}
+
+/* Stats */
+.stats{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-bottom:20px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+.stat__label{font-size:.76rem;color:var(--ink-soft);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.stat__value{font-size:1.75rem;font-weight:800;line-height:1.2;margin-top:4px}
+.stat--accent .stat__value{color:var(--accent)}
+.stat--new .stat__value{color:var(--brand)}
+
+/* Filters */
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.chip{
+  background:#fff;border:1.5px solid var(--line);border-radius:999px;padding:8px 16px;
+  font-size:.85rem;font-weight:600;color:var(--ink-soft);cursor:pointer;font-family:inherit;transition:.15s;
+}
+.chip:hover{border-color:var(--brand)}
+.chip.is-active{background:var(--brand);border-color:var(--brand);color:#fff}
+.chip__count{opacity:.7;font-weight:500;margin-left:4px}
+
+/* List */
+.list{display:flex;flex-direction:column;gap:10px}
+.card{
+  background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;
+  border-left:4px solid var(--line);
+}
+.card[data-status="new"]{border-left-color:var(--accent)}
+.card[data-status="in_progress"]{border-left-color:var(--brand)}
+.card[data-status="done"]{border-left-color:#16a34a}
+.card[data-status="rejected"]{border-left-color:#94a3b8;opacity:.75}
+.card__main{padding:16px 18px;display:grid;gap:12px;grid-template-columns:1fr auto;align-items:start}
+.card__top{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.card__id{font-size:.75rem;color:var(--ink-soft);font-weight:600}
+.card__name{font-weight:750;font-size:1.02rem}
+.card__time{font-size:.76rem;color:var(--ink-soft)}
+.card__phone{
+  display:inline-flex;align-items:center;gap:6px;font-size:1.12rem;font-weight:750;
+  color:var(--brand-dark);margin-top:4px;
+}
+.card__phone:hover{text-decoration:underline}
+.card__meta{font-size:.82rem;color:var(--ink-soft);margin-top:6px}
+.card__meta b{color:var(--ink);font-weight:650}
+.card__actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.st{
+  font-size:.72rem;font-weight:700;padding:4px 10px;border-radius:999px;text-transform:uppercase;
+  letter-spacing:.04em;white-space:nowrap;
+}
+.st--new{background:#fff1e9;color:#c2410c}
+.st--in_progress{background:var(--brand-soft);color:var(--brand-dark)}
+.st--done{background:#dcfce7;color:#15803d}
+.st--rejected{background:#f1f5f9;color:#64748b}
+
+.mini{
+  border:1.5px solid #cbd5e1;background:#fff;border-radius:8px;padding:8px 13px;
+  font-size:.79rem;font-weight:700;color:#334155;cursor:pointer;font-family:inherit;transition:.15s;
+}
+.mini:hover{border-color:var(--brand);color:var(--brand);background:var(--brand-soft)}
+.mini.is-current{background:var(--brand);border-color:var(--brand);color:#fff}
+.mini--primary{border-color:var(--brand);color:var(--brand)}
+.mini--primary:hover{background:var(--brand);color:#fff}
+
+.empty{background:#fff;border:1px dashed var(--line);border-radius:14px;padding:56px 20px;text-align:center;color:var(--ink-soft)}
+.empty b{display:block;font-size:1.1rem;color:var(--ink);margin-bottom:6px}
+
+.loader{text-align:center;padding:40px;color:var(--ink-soft);font-size:.9rem}
+
+@media(max-width:640px){
+  .card__main{grid-template-columns:1fr}
+  .card__actions{justify-content:flex-start;margin-top:4px}
+  .stat__value{font-size:1.45rem}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top__in">
+    <h1>Заявки с сайта</h1>
+    <span class="top__user" id="userLabel">admin</span>
+    <a class="btn btn--primary" href="/" target="_blank" rel="noopener">Открыть сайт</a>
+    <button class="btn btn--logout" id="logoutBtn">Выйти</button>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="stats" id="stats"></div>
+
+  <div class="filters" id="filters">
+    <button class="chip is-active" data-status="all">Все</button>
+    <button class="chip" data-status="new">Новые</button>
+    <button class="chip" data-status="in_progress">В работе</button>
+    <button class="chip" data-status="done">Обработаны</button>
+    <button class="chip" data-status="rejected">Отказы</button>
+  </div>
+
+  <div id="list" class="list">
+    <div class="loader">Загружаем…</div>
+  </div>
+</div>
+
+<script>
+const STATUS_LABEL = {
+  new: 'Новая',
+  in_progress: 'В работе',
+  done: 'Обработана',
+  rejected: 'Отказ',
+};
+const STATUS_ORDER = ['new', 'in_progress', 'done', 'rejected'];
+
+let state = { status: 'all' };
+
+function esc(s) {
+  return String(s ?? '').replace(/[<>&"']/g, c => ({
+    '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#39;'
+  }[c]));
+}
+
+function fmtDate(iso) {
+  // 'YYYY-MM-DD HH:MM:SS' в UTC → МСК
+  const [d, t] = String(iso).split(' ');
+  const dt = new Date(d + 'T' + t + 'Z');
+  const now = Date.now();
+  const diff = now - dt.getTime();
+  const min = Math.floor(diff / 60000);
+  if (min < 1) return 'только что';
+  if (min < 60) return min + ' мин назад';
+  if (min < 1440) return Math.floor(min / 60) + ' ч назад';
+  return dt.toLocaleString('ru-RU', {
+    timeZone: 'Europe/Moscow', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
+  });
+}
+
+async function api(url, opts) {
+  const res = await fetch(url, opts);
+  if (res.status === 401) { location.href = '/admin/login'; throw new Error('auth'); }
+  return res.json();
+}
+
+async function loadStats() {
+  try {
+    const s = await api('/api/admin/stats');
+    const by = {};
+    (s.byStatus || []).forEach(r => by[r.status] = r.c);
+    document.getElementById('stats').innerHTML = `
+      <div class="stat stat--new"><div class="stat__label">Новые</div><div class="stat__value">${by.new || 0}</div></div>
+      <div class="stat stat--accent"><div class="stat__label">Сегодня</div><div class="stat__value">${s.today}</div></div>
+      <div class="stat"><div class="stat__label">За неделю</div><div class="stat__value">${s.week}</div></div>
+      <div class="stat"><div class="stat__label">Всего</div><div class="stat__value">${s.total}</div></div>
+    `;
+  } catch (e) {}
+}
+
+async function loadLeads() {
+  const box = document.getElementById('list');
+  box.innerHTML = '<div class="loader">Загружаем…</div>';
+  try {
+    const data = await api('/api/admin/leads?status=' + encodeURIComponent(state.status));
+    if (!data.rows || !data.rows.length) {
+      box.innerHTML = `<div class="empty"><b>Заявок нет</b>${
+        state.status === 'all' ? 'Как только посетитель оставит заявку — она появится здесь.' : 'В этом фильтре пусто.'
+      }</div>`;
+      return;
+    }
+    box.innerHTML = data.rows.map(rowHtml).join('');
+    box.querySelectorAll('[data-set-status]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id = btn.dataset.id;
+        const status = btn.dataset.setStatus;
+        btn.disabled = true;
+        await api(`/api/admin/leads/${id}/status`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status }),
+        });
+        await loadLeads();
+        await loadStats();
+      });
+    });
+  } catch (e) {
+    box.innerHTML = '<div class="empty">Не удалось загрузить заявки</div>';
+  }
+}
+
+function rowHtml(l) {
+  const actions = STATUS_ORDER.map(s => {
+    if (s === l.status) return '';
+    const primary = (l.status === 'new' && s === 'in_progress') ? ' mini--primary' : '';
+    return `<button class="mini${primary}" data-id="${l.id}" data-set-status="${s}">${STATUS_LABEL[s]}</button>`;
+  }).join('');
+
+  const phoneDigits = (l.phone || '').replace(/\D/g, '');
+
+  return `
+    <article class="card" data-status="${esc(l.status)}">
+      <div class="card__main">
+        <div>
+          <div class="card__top">
+            <span class="card__id">#${l.id}</span>
+            <span class="card__name">${esc(l.name || 'Без имени')}</span>
+            <span class="st st--${esc(l.status)}">${STATUS_LABEL[l.status] || l.status}</span>
+            <span class="card__time">${fmtDate(l.created_at)}</span>
+          </div>
+          <a class="card__phone" href="tel:+${phoneDigits}">${esc(l.phone)}</a>
+          <div class="card__meta">
+            ${l.source ? `Источник: <b>${esc(l.source)}</b>` : ''}
+            ${l.calc ? ` · Расчёт: <b>${esc(l.calc)}</b>` : ''}
+          </div>
+        </div>
+        <div class="card__actions">${actions}</div>
+      </div>
+    </article>
+  `;
+}
+
+/* Фильтры */
+document.getElementById('filters').addEventListener('click', (e) => {
+  const chip = e.target.closest('.chip');
+  if (!chip) return;
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('is-active'));
+  chip.classList.add('is-active');
+  state.status = chip.dataset.status;
+  loadLeads();
+});
+
+/* Выход */
+document.getElementById('logoutBtn').addEventListener('click', async () => {
+  await fetch('/api/admin/logout', { method: 'POST' });
+  location.href = '/admin/login';
+});
+
+loadStats();
+loadLeads();
+// автообновление раз в 30 сек
+setInterval(() => { loadStats(); loadLeads(); }, 30000);
+</script>
+</body>
+</html>
