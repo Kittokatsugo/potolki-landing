@@ -22,6 +22,15 @@
 - Исправлено: двойное экранирование ломало `>` в расчёте (`&gt;` текстом).
 - Исправлено: `server.js` отдавался как статика.
 
+## Публикация (v1.3)
+- **GitHub:** https://github.com/Kittokatsugo/potolki-landing (public)
+- **Живая демо-версия:** https://kittokatsugo.github.io/potolki-landing/
+  Pages из папки docs/, ветка main.
+- Статическая версия: отправка через Formspree (CONFIG.formspreeUrl в docs/main.js).
+  Пока не подключён — демо-сообщение «позвоните». Тесты: 16/16 (pages-test.mjs).
+- Полная версия с админкой — в корне, готова к деплою на VPS/Amvera.
+- Render отпал: требует зарубежную карту.
+
 ## Файлы
 - `index.html`, `main.js` — лендинг
 - `admin.html`, `admin-login.html` — админка
@@ -56,6 +65,15 @@
   Это главный аргумент продажи.
 - Все настройки клиента в объекте `CONFIG` (main.js, строки 1–20). Подмена под клиента — 15 минут.
 - Без бэкенда: заявки сразу в Telegram. Для MVP хватает.
+
+## Публикация (v1.3)
+- **GitHub:** https://github.com/Kittokatsugo/potolki-landing (public)
+- **Живая демо-версия:** https://kittokatsugo.github.io/potolki-landing/
+  Pages из папки docs/, ветка main.
+- Статическая версия: отправка через Formspree (CONFIG.formspreeUrl в docs/main.js).
+  Пока не подключён — демо-сообщение «позвоните». Тесты: 16/16 (pages-test.mjs).
+- Полная версия с админкой — в корне, готова к деплою на VPS/Amvera.
+- Render отпал: требует зарубежную карту.
 
 ## Файлы
 - `index.html` — разметка + стили в `<style>`
