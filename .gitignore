@@ -6,3 +6,6 @@ screens/
 *.log
 *.json
 !package.json
+serve-docs.cjs
+pages-test.mjs
+checkimg.mjs
